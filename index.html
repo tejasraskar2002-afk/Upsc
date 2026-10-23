@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#102b46">
+<title>UPSC AI Interview Simulator</title>
+<link rel="manifest" href="/manifest.json">
+<style>
+:root{--navy:#102b46;--blue:#1d5278;--gold:#e8b04b;--bg:#f2f5f8;--ink:#172433;--muted:#637487;--white:#fff;--green:#167b56;--red:#b33a3a}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(120deg,var(--navy),var(--blue));color:white;padding:20px 16px 24px}header .wrap,main{max-width:980px;margin:auto}h1{font-size:clamp(1.45rem,4vw,2.2rem);margin:0 0 6px}header p{margin:0;color:#e0eaf2}
+main{padding:16px}.card{background:white;border-radius:16px;padding:18px;margin:0 0 16px;box-shadow:0 4px 18px #14283a0c;border:1px solid #e1e7ed}
+h2{font-size:1.15rem;margin:0 0 14px;color:var(--navy)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:5px}label{font-weight:650;font-size:.9rem}input,select,textarea{width:100%;padding:11px 12px;border:1px solid #c9d3dd;border-radius:10px;font:inherit;background:white;color:var(--ink)}textarea{min-height:76px;resize:vertical}.full{grid-column:1/-1}
+button{border:0;border-radius:11px;padding:12px 15px;font:inherit;font-weight:700;cursor:pointer;background:var(--navy);color:white}button.secondary{background:#e7edf3;color:var(--navy)}button.gold{background:var(--gold);color:#172433}button:disabled{opacity:.45;cursor:not-allowed}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.notice{padding:11px 13px;background:#fff7e5;border-left:4px solid var(--gold);border-radius:8px;font-size:.9rem;line-height:1.45}
+.hidden{display:none!important}.panelrow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.judge{border:1px solid #dbe3eb;border-radius:12px;padding:10px;text-align:center;background:#f9fbfd}.judge .avatar{font-size:1.6rem}.judge strong{display:block;font-size:.82rem}.judge small{font-size:.73rem;color:var(--muted)}
+.status{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.pill{display:inline-block;padding:5px 10px;border-radius:99px;background:#e9f0f6;color:var(--navy);font-size:.83rem;font-weight:750}.timer{font-variant-numeric:tabular-nums;font-size:1.5rem;font-weight:800;color:var(--navy)}
+.question{font-size:1.25rem;line-height:1.5;font-weight:750;margin:15px 0}.transcript{min-height:100px;background:#f6f8fa;border:1px solid #e1e7ed;border-radius:10px;padding:12px;white-space:pre-wrap;line-height:1.5}.small{font-size:.85rem;color:var(--muted);line-height:1.5}.progress{height:8px;background:#e4eaf0;border-radius:99px;overflow:hidden;margin:10px 0}.progress span{display:block;height:100%;background:var(--gold);width:0;transition:width .2s}.report-item{padding:12px 0;border-bottom:1px solid #e8edf2}.report-item:last-child{border:0}.score{font-size:1.8rem;font-weight:850;color:var(--green)}footer{text-align:center;color:var(--muted);font-size:.8rem;padding:12px 16px 28px}
+@media(max-width:620px){.grid{grid-template-columns:1fr}.panelrow{grid-template-columns:repeat(2,minmax(0,1fr))}.panelrow .judge:last-child{grid-column:1/-1}.card{padding:14px}main{padding:12px}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><h1>🇮🇳 UPSC AI Interview Simulator</h1><p>20-minute mock personality test · Five AI judge personas · Voice practice</p></div></header>
+<main>
+<section class="card" id="setup">
+<h2>1. Candidate profile</h2>
+<div class="grid">
+<div class="field"><label for="candidateName">Candidate name</label><input id="candidateName" placeholder="Your name"></div>
+<div class="field"><label for="language">Interview language</label><select id="language"><option value="en-IN">English</option><option value="hi-IN">Hindi (speech recognition support varies)</option><option value="mr-IN">Marathi (speech recognition support varies)</option></select></div>
+<div class="field"><label for="education">Education / graduation subject</label><input id="education" placeholder="e.g. B.A. Political Science"></div>
+<div class="field"><label for="district">Home district and state</label><input id="district" placeholder="e.g. Pune, Maharashtra"></div>
+<div class="field"><label for="optional">UPSC optional subject</label><input id="optional" placeholder="Optional subject"></div>
+<div class="field"><label for="hobbies">Hobbies / interests</label><input id="hobbies" placeholder="e.g. reading, trekking"></div>
+<div class="field full"><label for="daf">Other DAF details / topics to include</label><textarea id="daf" placeholder="Achievements, work experience, service preference, issues you want to practise..."></textarea></div>
+<div class="field"><label for="mode">Interview mode</label><select id="mode"><option value="auto">Automatic — ask next question after answer</option><option value="manual">Manual — tap Next Question</option></select></div>
+<div class="field"><label for="voice">Judge voice</label><select id="voice"><option value="varied">Different available device voices</option><option value="default">Default device voice</option></select></div>
+</div>
+<div class="notice" style="margin-top:14px">For the best experience, allow microphone access and use Chrome. Voice availability depends on your phone and browser. The first version uses browser speech services and a server-side AI API; it is a practice simulator, not an official UPSC assessment.</div>
+<div class="actions"><button id="startBtn">Start 20-minute interview</button><button class="secondary" id="testVoice">Test voice</button></div>
+<p id="setupError" class="small" role="status"></p>
+</section>
+
+<section class="card hidden" id="interview">
+<div class="status"><div><span class="pill" id="judgePill">Judge 1 · Chairperson</span> <span class="pill" id="qCount">Question 1 of 25</span></div><div class="timer" id="timer">20:00</div></div>
+<div class="progress"><span id="progressBar"></span></div>
+<div class="panelrow">
+<div class="judge"><div class="avatar">👩‍⚖️</div><strong>Chairperson</strong><small>Motivation & personality</small></div>
+<div class="judge"><div class="avatar">👨‍🏫</div><strong>Subject Expert</strong><small>Education & optional</small></div>
+<div class="judge"><div class="avatar">📰</div><strong>Current Affairs</strong><small>India & world</small></div>
+<div class="judge"><div class="avatar">🏛️</div><strong>Administrator</strong><small>Governance & ethics</small></div>
+<div class="judge"><div class="avatar">🧠</div><strong>Analyst</strong><small>Reasoning & situations</small></div>
+</div>
+<p class="small" id="judgeIntro">The panel is ready.</p>
+<div class="question" id="questionText">Your first question will appear here.</div>
+<div class="actions"><button class="gold" id="speakQuestion">🔊 Repeat question</button><button id="answerBtn">🎙️ Start speaking</button><button class="secondary" id="stopAnswer" disabled>Stop speaking</button><button class="secondary" id="nextBtn">Next question →</button></div>
+<p class="small" id="speechStatus" role="status">Tap Start speaking, answer naturally, then stop. You can also type your answer below.</p>
+<div class="field" style="margin-top:12px"><label for="answerText">Your answer / speech transcript</label><textarea id="answerText" placeholder="Speech transcript appears here. You can edit or type your answer."></textarea></div>
+<div class="actions"><button id="submitAnswer">Submit answer</button><button class="secondary" id="endBtn">End interview & evaluate</button></div>
+</section>
+
+<section class="card hidden" id="report">
+<h2>2. Interview feedback</h2><p id="reportIntro"></p><div id="reportBody"></div>
+<div class="actions"><button id="downloadReport">Download report (.txt)</button><button id="newInterview" class="secondary">New interview</button></div>
+<p class="small">This AI-generated feedback is for practice only. It is not an official UPSC score or a prediction of selection.</p>
+</section>
+</main>
+<footer>UPSC AI Interview Simulator · Keep your answers respectful, honest and concise.</footer>
+<script src="/app.js"></script>
+</body></html>
